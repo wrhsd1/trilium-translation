@@ -70,13 +70,39 @@ def replace_in_file(file_path, translation, base_path=BASE_PATH):
 # 关于页面添加翻译者信息
 # add translator info in about page :)
 print('add translator info in about page.')
-about_file_path = f'{TARGET_PATH}src/views/dialogs/about.ejs'
+# before 0.53
+# about_file_path = f'{TARGET_PATH}src/public/app/widgets/dialogs/about.js'
+# 0.53.2
+about_file_path = f'src/public/app/widgets/dialogs/about.js'
 with open(about_file_path, 'r') as f:
     content = f.read()
     if TRANSLATOR_LABEL not in content:
         content = content.replace('                </table>',
                                   f'\n                    <tr>\n                        <th>{TRANSLATOR_LABEL}:</th>\n                        <td><a href="{TRANSLATOR_URL}" class="external">{TRANSLATOR_URL}</a></td>\n                    </tr>\n                </table>')
 with open(about_file_path, 'w') as f:
+    f.write(content)
+
+# 修复flex布局下部分界面中文自动换行的问题
+# 选项界面
+file_path = 'src/public/app/widgets/dialogs/options.js'
+with open(file_path, 'r') as f:
+    content = f.read()
+    target_element = '<ul class="nav nav-tabs flex-column">'
+    if target_element in content:
+        content = content.replace('<ul class="nav nav-tabs flex-column">',
+                                  '<ul class="nav nav-tabs flex-column" style="white-space: nowrap;">')
+with open(file_path, 'w') as f:
+    f.write(content)
+
+# 升级属性
+file_path = 'src/public/app/widgets/ribbon_widgets/promoted_attributes.js'
+with open(file_path, 'r') as f:
+    content = f.read()
+    target_element = '<div class="promoted-attribute-cell">'
+    new_element = '<div class="promoted-attribute-cell" style="white-space: nowrap;">'
+    if target_element in content:
+        content = content.replace(target_element, new_element)
+with open(file_path, 'w') as f:
     f.write(content)
 
 # 下面一堆是正则匹配规则, 读代码的时候下面这一段可以跳过, 直接看最后面几行
@@ -202,7 +228,9 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/about.ejs'
+# file_path = 'src/public/app/widgets/dialogs/about.js'
+# 0.53.2
+file_path = 'src/public/app/widgets/dialogs/about.js'
 translation = [
     '>{{About Trilium Notes}}<',
     '>{{Homepage:}}<',
@@ -213,9 +241,10 @@ translation = [
     '>{{Build revision:}}<',
     '>{{Data directory:}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+# replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/add_link.ejs'
+file_path = 'src/public/app/widgets/dialogs/add_link.js'
 translation = [
     '>{{Add link}}<',
     '>{{Note}}<',
@@ -227,25 +256,39 @@ translation = [
     "{{link title mirrors the note's current title}}",
     '{{link title can be changed arbitrarily}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/backend_log.ejs'
+file_path = 'src/public/app/widgets/dialogs/backend_log.js'
 translation = [
     '>{{Backend log}}<',
     '>{{Refresh}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/branch_prefix.ejs'
+file_path = 'src/public/app/widgets/dialogs/branch_prefix.js'
 translation = [
     '>{{Edit branch prefix}}<',
     '>{{Prefix}}: <',
     '>{{Save}}<',
     'title="{{Help on Tree prefix}}"',
+    'showMessage("{{Branch prefix has been saved.}}"',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/clone_to.ejs'
+file_path = 'src/public/app/widgets/dialogs/bulk_actions.js'
+translation = [
+    '>{{Bulk assign attributes}}<',
+    '>{{Affected notes: }}<',
+    '                        {{Include descendants of the selected notes}}',
+    '>{{Available actions}}<',
+    '>{{Chosen actions}}<',
+    '>{{Execute bulk actions}}<',
+    '>{{None yet ... add an action by clicking one of the available ones above.}}<',
+    'showMessage("{{Bulk actions have been executed successfully.}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/dialogs/clone_to.js'
 translation = [
     '>{{Clone notes to ...}}<',
     '>{{Notes to clone}}<',
@@ -256,18 +299,20 @@ translation = [
     'title="{{Help on links}}"',
     'title="{{Cloned note will be shown in note tree with given prefix}}"',
     '{{search for note by its name}}',
+    'showMessage({{`Note "${clonedNote.title}" has been cloned into ${targetNote.title}`}}',
+    '    logError("{{No path to clone to.}}"',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/confirm.ejs'
+file_path = 'src/public/app/widgets/dialogs/confirm.js'
 translation = [
     '>{{Confirmation}}<',
     '>{{Cancel}}<',
     '>{{OK}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/delete_notes.ejs'
+file_path = 'src/public/app/widgets/dialogs/delete_notes.js'
 translation = [
     '>{{Delete notes preview}}<',
     '>{{Following notes will be deleted (}}<',
@@ -278,24 +323,24 @@ translation = [
     '''title="{{Normal (soft) deletion only marks the notes as deleted and they can be undeleted (in recent changes dialog) within a period of time. Checking this option will erase the notes immediatelly and it won't be possible to undelete the notes.}}"''',
     '''        {{erase notes permanently (can't be undone). This will force application reload.}}''',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/export.ejs'
+file_path = 'src/public/app/widgets/dialogs/export.js'
 translation = [
     '>{{Export note "}}<',
-    '>{{this note and all of its descendants}}<',
-    '>{{HTML in ZIP archive - this is recommended since this preserves all the formatting.}}<',
-    '>{{OPML v1.0 - plain text only}}<',
-    '>{{OMPL v2.0 - allows also HTML}}<',
-    '>{{only this note without its descendants}}<',
-    '>{{HTML - this is recommended since this preserves all the formatting.}}<',
+    '    {{this note and all of its descendants}}',
+    '    {{HTML in ZIP archive - this is recommended since this preserves all the formatting.}}',
+    '    {{OPML v1.0 - plain text only}}',
+    '    {{OMPL v2.0 - allows also HTML}}',
+    '    {{only this note without its descendants}}',
+    '    {{HTML - this is recommended since this preserves all the formatting.}}',
     '>{{Export}}<',
     '{{this preserves most of the formatting.}}',
     '{{outliner interchange format for text only. Formatting, images and files are not included.}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/help.ejs'
+file_path = 'src/public/app/widgets/dialogs/help.js'
 translation = [
     '>{{Help (full documentation is available }}<',
     '>{{online}}<',
@@ -366,9 +411,9 @@ translation = [
     '{{Only in desktop (electron build)}}:',
     '{{in tree pane will switch from tree pane into note title. Enter from note title will switch focus to text editor.}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/import.ejs'
+file_path = 'src/public/app/widgets/dialogs/import.js'
 translation = [
     '>{{Import into note}}<',
     '>{{Choose import file}}<',
@@ -388,9 +433,9 @@ translation = [
     '''title="{{<p>If you check this option, Trilium will attempt to shrink the imported images by scaling and optimization which may affect the perceived image quality. If unchecked, images will be imported without changes.</p><p>This doesn't apply to <code>.zip</code> imports with metadata since it is assumed these files are already optimized.</p>}}"''',
     '''{{Replace underscores with spaces in imported note names}}''',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/include_note.ejs'
+file_path = 'src/public/app/widgets/dialogs/include_note.js'
 translation = [
     '>{{Include note}}<',
     '>{{Note}}<',
@@ -398,16 +443,16 @@ translation = [
     '>{{enter}}<',
     '{{search for note by its name}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/info.ejs'
+file_path = 'src/public/app/widgets/dialogs/info.js'
 translation = [
     '>{{Info message}}<',
     '>{{OK}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/jump_to_note.ejs'
+file_path = 'src/public/app/widgets/dialogs/jump_to_note.js'
 translation = [
     '>{{Jump to note}}<',
     '>{{Note}}<',
@@ -415,27 +460,18 @@ translation = [
     '>{{Ctrl+Enter}}<',
     '{{search for note by its name}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/link_map.ejs'
-translation = [
-    '>{{Link map}}<',
-    '>{{max notes:}}<',
-    'title="{{Max number of displayed notes}}"',
-    'title="{{Help on Link map}}"',
-]
-replace_in_file(file_path, translation, TARGET_PATH)
-
-file_path = 'src/views/dialogs/markdown_import.ejs'
+file_path = 'src/public/app/widgets/dialogs/markdown_import.js'
 translation = [
     '>{{Markdown import}}<',
     ">{{Because of browser sandbox it's not possible to directly read clipboard from JavaScript. Please paste the Markdown to import to textarea below and click on Import button}}<",
     '>{{Import }}<',
     '>{{Ctrl+Enter}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/move_to.ejs'
+file_path = 'src/public/app/widgets/dialogs/move_to.js'
 translation = [
     '>{{Move notes to ...}}<',
     '>{{Notes to move}}<',
@@ -444,42 +480,52 @@ translation = [
     '>{{enter}}<',
     '{{search for note by its name}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/note_info.ejs'
-translation = [
-    '>{{Note info}}<',
-    '>{{Note ID}}<',
-    '>{{Date created}}<',
-    '>{{Date modified}}<',
-    '>{{Type}}<',
-    '>{{MIME}}<',
-    '>{{OK}}<',
-]
-replace_in_file(file_path, translation, TARGET_PATH)
-
-file_path = 'src/views/dialogs/note_revisions.ejs'
+file_path = 'src/public/app/widgets/dialogs/note_revisions.js'
 translation = [
     '>{{Note revisions}}<',
     '>{{Delete all revisions}}<',
     '>{{Dropdown trigger}}<',
     'title="{{Delete all revisions of this note}}"',
     'title="{{Help on Note revisions}}"',
+    '>{{Restore this revision}}<',
+    '>{{Delete this revision}}<',
+    '>{{Download}}<',
+    '{{This revision was last edited on}} ',
+    '{{Do you want to restore this revision? This will overwrite current title/content of the note with this revision.}}',
+    '{{Do you want to delete this revision? This action will delete revision title and content, but still preserve revision metadata.}}',
+    "{{Preview isn't available for this note type.}}",
+    '{{Do you want to delete all revisions of this note? This action will erase revision title and content, but still preserve revision metadata.}}',
+    "showMessage('{{Note revision has been restored.}}'",
+    "showMessage('{{Note revision has been deleted.}}'",
+    "showMessage('{{Note revisions has been deleted.}}'",
+    '"{{No revisions for this note yet...}}"',
+    '.text("{{File size:}}")',
+    '.text("{{Preview}}:")',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/note_source.ejs'
+file_path = 'src/public/app/widgets/dialogs/note_source.js'
 translation = [
     '>{{Note source}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/options.ejs'
+file_path = 'src/public/app/widgets/dialogs/note_type_chooser.js'
+translation = [
+    '>{{Choose note type}}<',
+    '>{{Dropdown trigger}}<',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/dialogs/options.js'
 translation = [
     '>{{Options}}<',
     '>{{Appearance}}<',
     '>{{Shortcuts}}<',
     '>{{Keyboard shortcuts}}<',
+    '>{{Text notes}}<',
     '>{{Code notes}}<',
     # removed from 0.50
     # '>{{Username & password}}<',
@@ -490,24 +536,24 @@ translation = [
     '>{{Other}}<',
     '>{{Advanced}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/password_not_set.ejs'
+file_path = 'src/public/app/widgets/dialogs/password_not_set.js'
 translation = [
     '>{{Password is not set}}<',
     '{{Protected notes are encrypted using a user password, but password has not been set yet.}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/prompt.ejs'
+file_path = 'src/public/app/widgets/dialogs/prompt.js'
 translation = [
     '>{{Prompt}}<',
     '>{{OK }}<',
     '>{{enter}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/protected_session_password.ejs'
+file_path = 'src/public/app/widgets/dialogs/protected_session_password.js'
 translation = [
     '>{{Protected session}}<',
     '>{{To proceed with requested action you need to start protected session by entering password:}}<',
@@ -515,19 +561,20 @@ translation = [
     '>{{enter}}<',
     'title="{{Help on Protected notes}}"',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/recent_changes.ejs'
+file_path = 'src/public/app/widgets/dialogs/recent_changes.js'
 translation = [
     '>{{Recent changes}}<',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
-file_path = 'src/views/dialogs/sort_child_notes.ejs'
+file_path = 'src/public/app/widgets/dialogs/sort_child_notes.js'
 translation = [
     '>{{Sort children by ...}}<',
     '>{{Sorting criteria}}<',
     '>{{Sorting direction}}<',
+    '>{{Folders}}<',
     '>{{Sort }}<',
     '>{{enter}}<',
     '    {{title}}',
@@ -536,7 +583,7 @@ translation = [
     '    {{ascending}}',
     '    {{descending}}',
 ]
-replace_in_file(file_path, translation, TARGET_PATH)
+replace_in_file(file_path, translation)
 
 file_path = 'src/public/app/dialogs/add_link.js'
 translation = [
@@ -567,7 +614,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/advanced.js'
+file_path = 'src/public/app/widgets/dialogs/options/advanced.js'
 translation = [
     '>{{Sync}}<',
     '>{{Force full sync}}<',
@@ -581,7 +628,7 @@ translation = [
     '>{{Full anonymization}}<',
     '>{{Save fully anonymized database}}<',
     '>{{Light anonymization}}<',
-    '>{{This action will create a new copy of the database and do a light anonymization on it - specifically only content of all notes will be removed, but titles and attributes will remaing. Additionally, custom JS frontend/backend script notes and custom widgets will remain. This provides more context to debug the issues.}}<',
+    '>{{This action will create a new copy of the database and do a light anonymization on it - specifically only content of all notes will be removed, but titles and attributes will remain. Additionally, custom JS frontend/backend script notes and custom widgets will remain. This provides more context to debug the issues.}}<',
     '>{{You can decide yourself if you want to provide fully or lightly anonymized database. Even fully anonymized DB is very useful, however in some cases lightly anonymized database can speed up the process of bug identification and fixing.}}<',
     '>{{Save lightly anonymized database}}<',
     '>{{Save anonymized database}}<',
@@ -594,13 +641,19 @@ translation = [
     '{{This action will create a new copy of the database and anonymize it}}',
     '{{remove all note content and leave only structure and some non-sensitive metadata}}',
     '{{for sharing online for debugging purposes without fear of leaking your personal data.}}',
-    'showMessage(`{{Created fully anonymized database in ${resp.anonymizedFilePath}}}`',
-    'showMessage(`{{Created lightly anonymized database in ${resp.anonymizedFilePath}}}`',
+    'showMessage({{`Created fully anonymized database in ${resp.anonymizedFilePath}`}}',
+    'showMessage({{`Created lightly anonymized database in ${resp.anonymizedFilePath}`}}',
     'showMessage("{{Full sync triggered}}"',
+    'showMessage("{{Filling entity changes rows...}}"',
     'showMessage("{{Sync rows filled successfully}}"',
     'showMessage("{{Database has been backed up to }}"',
+    'showMessage("{{Creating fully anonymized database...}}"',
+    'showMessage("{{Creating lightly anonymized database...}}"',
+    'showMessage("{{Vacuuming database...}}"',
     'showMessage("{{Database has been vacuumed}}"',
+    'showMessage("{{Finding and fixing consistency issues...}}"',
     'showMessage("{{Consistency issues should be fixed.}}"',
+    'showMessage("{{Checking database integrity...}}"',
     'showError("{{Could not create anonymized database, check backend logs for details}}"',
     'showMessage("{{Integrity check succeeded - no problems found.}}"',
     'showMessage("{{Integrity check failed: }}"',
@@ -609,7 +662,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/appearance.js'
+file_path = 'src/public/app/widgets/dialogs/options/appearance.js'
 translation = [
     '>{{Theme}}<',
     '{{Settings on this options tab are saved automatically after each change.}}',
@@ -651,7 +704,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/backup.js'
+file_path = 'src/public/app/widgets/dialogs/options/backup.js'
 translation = [
     '>{{Automatic backup}}<',
     '>{{Trilium can back up the database automatically:}}<',
@@ -709,26 +762,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/note_revisions.js'
-translation = [
-    '>{{Restore this revision}}<',
-    '>{{Delete this revision}}<',
-    '>{{Download}}<',
-    '{{This revision was last edited on}} ',
-    '{{Do you want to restore this revision? This will overwrite current title/content of the note with this revision.}}',
-    '{{Do you want to delete this revision? This action will delete revision title and content, but still preserve revision metadata.}}',
-    "{{Preview isn't available for this note type.}}",
-    '{{Do you want to delete all revisions of this note? This action will erase revision title and content, but still preserve revision metadata.}}',
-    "showMessage('{{Note revision has been restored.}}'",
-    "showMessage('{{Note revision has been deleted.}}'",
-    "showMessage('{{Note revisions has been deleted.}}'",
-    '"{{No revisions for this note yet...}}"',
-    '.text("{{File size:}}")',
-    '.text("{{Preview}}:")',
-]
-replace_in_file(file_path, translation)
-
-file_path = 'src/public/app/dialogs/options/code_notes.js'
+file_path = 'src/public/app/widgets/dialogs/options/code_notes.js'
 translation = [
     '>{{Use vim keybindings in CodeNotes (no ex mode)}}<',
     '>{{Enable Vim Keybindings}}<',
@@ -737,7 +771,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/etapi.js'
+file_path = 'src/public/app/widgets/dialogs/options/etapi.js'
 translation = [
     '{{ETAPI is a REST API used to access Trilium instance programmatically, without UI.}}',
     """{{See more details on <a href="https://github.com/zadam/trilium/wiki/ETAPI">wiki</a> and <a onclick="window.open('etapi/etapi.openapi.yaml')" href="etapi/etapi.openapi.yaml">ETAPI OpenAPI spec</a>.}}""",
@@ -760,7 +794,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/credentials.js'
+file_path = 'src/public/app/widgets/dialogs/options/credentials.js'
 translation = [
     '>{{Username}}<',
     '>{{Your username is}} <',
@@ -774,7 +808,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/keyboard_shortcuts.js'
+file_path = 'src/public/app/widgets/dialogs/options/keyboard_shortcuts.js'
 translation = [
     '>{{Keyboard shortcuts}}<',
     '>{{Multiple shortcuts for the same action can be separated by comma.}}<',
@@ -789,7 +823,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/other.js'
+file_path = 'src/public/app/widgets/dialogs/options/other.js'
 translation = [
     '>{{Spell check}}<',
     '>{{These options apply only for desktop builds, browsers will use their own native spell check. App restart is required after change.}}<',
@@ -824,10 +858,12 @@ translation = [
     '>{{Automatic readonly note size is the size after which notes will be displayed in a readonly mode (for performance reasons).}}<',
     '>{{Automatic readonly size (text notes)}}<',
     '>{{Automatic readonly size (code notes)}}<',
+    '>{{Network connections}}<',
+    '>{{Check for updates automatically}}<',
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/password.js'
+file_path = 'src/public/app/widgets/dialogs/options/password.js'
 translation = [
     '>{{click here to reset it}}<',
     '>{{Old password}}<',
@@ -845,7 +881,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/shortcuts.js'
+file_path = 'src/public/app/widgets/dialogs/options/shortcuts.js'
 translation = [
     '>{{Keyboard shortcuts}}<',
     '>{{Multiple shortcuts for the same action can be separated by comma.}}<',
@@ -860,7 +896,7 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
-file_path = 'src/public/app/dialogs/options/sync.js'
+file_path = 'src/public/app/widgets/dialogs/options/sync.js'
 translation = [
     '>{{Sync configuration}}<',
     '>{{Server instance address}}<',
@@ -875,6 +911,19 @@ translation = [
     '>{{Test sync}}<',
     'showMessage("{{Options changed have been saved.}}"',
     '"{{Sync server handshake failed, error:}} "',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/dialogs/options/text_notes.js'
+translation = [
+    '>{{Settings on this options tab are saved automatically after each change.}}<',
+    '>{{Heading style}}<',
+    '>{{Plain}}<',
+    '>{{Underline}}<',
+    '>{{Markdown-style}}<',
+    '>{{Table of contents}}<',
+    '>{{You can also use this option to effectively disable TOC by setting a very high number.}}<',
+    '{{Table of contents will appear in text notes when the note has more than a defined number of headings. You can customize this number:}}',
 ]
 replace_in_file(file_path, translation)
 
@@ -897,6 +946,18 @@ translation = [
 ]
 replace_in_file(file_path, translation, TARGET_PATH)
 
+file_path = 'src/services/search/expressions/note_content_fulltext.js'
+translation = [
+    'throw new Error(`{{Note content can be searched only with operators: }}`',
+]
+replace_in_file(file_path, translation, TARGET_PATH)
+
+file_path = 'src/services/search/services/handle_parens.js'
+translation = [
+    'throw new Error("{{Did not find matching right parenthesis.}}"',
+]
+replace_in_file(file_path, translation, TARGET_PATH)
+
 # no need for translate for now
 file_path = 'src/services/search/services/search.js'
 translation = [
@@ -906,6 +967,13 @@ replace_in_file(file_path, translation, TARGET_PATH)
 file_path = 'src/services/sql_init.js'
 translation = [
     "title: '{{root}}",
+    'throw new Error("{{DB is already initialized}}"',
+]
+replace_in_file(file_path, translation, TARGET_PATH)
+
+file_path = 'src/services/setup.js'
+translation = [
+    'throw new Error(`{{Could not setup sync since local sync protocol version is ${appInfo.syncVersion} while remote is ${response.syncVersion}. To fix this issue, use same Trilium version on all instances.}}`',
 ]
 replace_in_file(file_path, translation, TARGET_PATH)
 
@@ -1191,6 +1259,21 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
+file_path = 'src/public/app/services/note_types.js'
+translation = [
+    'title: "{{Text}}"',
+    'title: "{{Code}}"',
+    'title: "{{Saved Search}}"',
+    'title: "{{Relation Map}}"',
+    'title: "{{Note Map}}"',
+    'title: "{{Render Note}}"',
+    'title: "{{Book}}"',
+    'title: "{{Mermaid Diagram}}"',
+    'title: "{{Canvas}}"',
+    'title: "{{Web View}}"',
+]
+replace_in_file(file_path, translation)
+
 file_path = 'src/public/app/services/protected_session.js'
 translation = [
     'showMessage("{{Protected session has been started.}}"',
@@ -1237,6 +1320,7 @@ translation = [
     'title: "{{Unprotect subtree}}"',
     'title: "{{Export}}"',
     'title: "{{Import into note}}"',
+    'title: "{{Apply bulk actions}}"',
     # special
     "title: '{{Open in a new tab }}",
     "title: '{{Open in a new split}}",
@@ -1287,6 +1371,7 @@ translation = [
     '- {{run once an hour. You can use additional label <code>runAtHour</code> to specify at which hour.}}<',
     '- {{run once a day}}<',
     '>{{Custom request handler}}<',
+    '>{{ will force the Table of Contents to be shown, }}<',
     'title="{{Cancel changes and close}}"',
     'title="{{Attribute name can be composed of alphanumeric characters, colon and underscore only}}"',
     'title="{{Relation is a named connection between source note and target note.}}"',
@@ -1340,6 +1425,7 @@ translation = [
     "{{marks note which is served on /share root.}}",
     "{{note will be served in its raw format, without HTML wrapper}}",
     "{{will forbid robot indexing of this note via <code>X-Robots-Tag: noindex</code> header}}",
+    "{{require credentials to access this shared note. Value is expected to be in format 'username:password'. Don't forget to make this inheritable to apply to child-notes/images.}}",
     "{{comma delimited names of relations which should be displayed. All other ones will be hidden.}}",
     "{{comma delimited names of relations which should be hidden. All other ones will be displayed.}}",
     "{{executes when note is created on backend}}",
@@ -1365,6 +1451,165 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
+file_path = 'src/public/app/widgets/bulk_actions/abstract_bulk_action.js'
+translation = [
+    '{{Remove this search action}}',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/execute_script.js'
+translation = [
+    '        {{Execute script}}:',
+    '"{{Execute script}}"',
+    '{{You can execute simple scripts on the matched notes.}}',
+    "{{For example to append a string to a note's title, use this small script:}}",
+    "{{More complex example would be deleting all matched note's attributes:}}",
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/label/add_label.js'
+translation = [
+    '"{{Add label}}"',
+    '>{{Add label}}<',
+    '>{{to value}}<',
+    '>{{On all matched notes:}}<',
+    ">{{create given label if note doesn't have one yet}}<",
+    '>{{or change value of the existing label}}<',
+    '>{{You can also call this method without value, in such case label will be assigned to the note without value.}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{label name}}"',
+    'placeholder="{{new value}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/label/delete_label.js'
+translation = [
+    '        {{Delete label}}:',
+    '"{{Delete label}}"',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{label name}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/label/rename_label.js'
+translation = [
+    '"{{Rename label}}"',
+    '>{{Rename label from:}}<',
+    '>{{To:}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{old name}}"',
+    'placeholder="{{new name}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/label/update_label_value.js'
+translation = [
+    '"{{Update label value}}"',
+    '>{{Update label value}}<',
+    '>{{to value}}<',
+    '>{{On all matched notes, change value of the existing label.}}<',
+    '>{{You can also call this method without value, in such case label will be assigned to the note without value.}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{label name}}"',
+    'placeholder="{{new value}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/note/delete_note.js'
+translation = [
+    '"{{Delete note}}"',
+    '>{{This will delete matched notes.}}<',
+    ">{{After the deletion, it's possible to undelete them from }}<",
+    '>{{ Recent Notes dialog.}}<',
+    '>{{To erase notes permanently, you can go after the deletion to the Option -> Other and click the "Erase deleted notes now" button.}}<',
+    '        {{Delete matched notes}}',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/note/delete_note_revisions.js'
+translation = [
+    '"{{Delete note revisions}}"',
+    '        {{Delete note revisions}}',
+    "{{All past note revisions of matched notes will be deleted. Note itself will be fully preserved. In other terms, note's history will be removed.}}",
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/note/move_note.js'
+translation = [
+    '"{{Move note}}"',
+    '>{{Move note}}<',
+    '>{{to}}<',
+    '>{{On all matched notes:}}<',
+    '>{{move note to the new parent if note has only one parent (i.e. the old placement is removed and new placement into the new parent is created)}}<',
+    ">{{clone note to the new parent if note has multiple clones/placements (it's not clear which placement should be removed)}}<",
+    '>{{nothing will happen if note cannot be moved to the target note (i.e. this would create a tree cycle)}}<',
+    'placeholder="{{target parent note}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/note/rename_note.js'
+translation = [
+    '"{{Rename note}}"',
+    '>{{Rename note title to:}}<',
+    '>{{The given value is evaluated as JavaScript string and thus can be enriched with dynamic content via the injected }}<',
+    '>{{note}}<',
+    '>{{ variable (note being renamed). Examples:}}<',
+    '>{{Note}}<',
+    '>{{ - all matched notes are renamed to "Note"}}<',
+    '>{{ - matched notes titles are prefixed with "NEW: "}}<',
+    ">{{ - matched notes are prefixed with note's creation month-date}}<",
+    '{{See API docs for <a href="https://zadam.github.io/trilium/backend_api/Note.html">note</a> and its <a href="https://day.js.org/docs/en/display/format">dateCreatedObj / utcDateCreatedObj properties</a> for details.}}',
+    'title="{{Click help icon on the right to see all the options}}"',
+    'placeholder="{{new note title}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/relation/add_relation.js'
+translation = [
+    '"{{Add relation}}"',
+    '>{{Add relation}}<',
+    '>{{to}}<',
+    '>{{On all matched notes create given relation.}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{relation name}}"',
+    'placeholder="{{target note}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/relation/delete_relation.js'
+translation = [
+    '        {{Delete relation}}:',
+    '"{{Delete relation}}"',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{relation name}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/relation/rename_relation.js'
+translation = [
+    '"{{Rename relation}}"',
+    '>{{Rename relation from:}}<',
+    '>{{To:}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{old name}}"',
+    'placeholder="{{new name}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/bulk_actions/relation/update_relation_target.js'
+translation = [
+    '"{{Update relation target}}"',
+    '>{{Update relation}}<',
+    '>{{to}}<',
+    '>{{On all matched notes:}}<',
+    ">{{create given relation if note doesn't have one yet}}<",
+    '>{{or change target note of the existing relation}}<',
+    'title="{{Alphanumeric characters, underscore and colon are allowed characters.}}"',
+    'placeholder="{{relation name}}"',
+    'placeholder="{{target note}}"',
+]
+replace_in_file(file_path, translation)
+
 file_path = 'src/public/app/widgets/buttons/close_pane_button.js'
 translation = [
     '"{{Close this pane}}"',
@@ -1379,8 +1624,8 @@ replace_in_file(file_path, translation)
 
 file_path = 'src/public/app/widgets/buttons/left_pane_toggle.js'
 translation = [
-    '"{{Hide panel.}}"',
-    '"{{Open panel.}}"',
+    '"{{Hide panel}}"',
+    '"{{Open panel}}"',
 ]
 replace_in_file(file_path, translation)
 
@@ -1595,6 +1840,21 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
+file_path = 'src/public/app/widgets/floating_buttons/relation_map_buttons.js'
+translation = [
+    'title="{{Create new child note and add it into this relation map}}"',
+    'title="{{Reset pan & zoom to initial coordinates and magnification}}"',
+    'title="{{Zoom In}}"',
+    'title="{{Zoom Out}}"',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/widgets/floating_buttons/mermaid_export_button.js'
+translation = [
+    'title="{{Export Mermaid diagram as SVG}}"',
+]
+replace_in_file(file_path, translation)
+
 file_path = 'src/public/app/widgets/mobile_widgets/mobile_detail_menu.js'
 translation = [
     'title: "{{Insert child note}}"',
@@ -1608,6 +1868,8 @@ file_path = 'src/public/app/widgets/mobile_widgets/mobile_global_buttons.js'
 translation = [
     '>{{No plugin buttons loaded yet.}}<',
     '> {{Switch to desktop version}}<',
+    '>{{ Enter protected session}}<',
+    '>{{ Leave protected session}}<',
     '> {{Logout}}<',
     'title="{{New note}}"',
     'title="{{Collapse note tree}}"',
@@ -1951,6 +2213,7 @@ translation = [
     '    logError(`{{Cannot parse ${jsonStr} into notes for drop}}`',
     '    logError({{`Cannot find branch=${branchId}`}}',
     '    logError("{{Could not find run path for notePath:}}"',
+    '"{{Apply bulk actions on selected notes}}"',
 
 ]
 replace_in_file(file_path, translation)
@@ -1959,14 +2222,15 @@ file_path = 'src/public/app/widgets/note_type.js'
 translation = [
     'title: "{{File}}"',
     'title: "{{Image}}"',
-    # dirty
-    'title: "{{Saved search}}"',
+    # capital letter!
+    'title: "{{Saved Search}}"',
     'title: "{{Note Map}}"',
     'title: "{{Text}}"',
     'title: "{{Relation Map}}"',
     'title: "{{Render Note}}"',
     'title: "{{Canvas}}"',
     'title: "{{Book}}"',
+    'title: "{{Web View}}"',
     'title: "{{Mermaid Diagram}}"',
     'title: "{{Code}}"',
     '    {{Type:}} <span',
@@ -2267,6 +2531,12 @@ translation = [
 ]
 replace_in_file(file_path, translation)
 
+file_path = 'src/public/app/widgets/toc.js'
+translation = [
+    '"{{Table of Contents}}"',
+]
+replace_in_file(file_path, translation)
+
 file_path = 'src/public/app/widgets/type_property_widgets/file_properties.js'
 translation = [
     '>{{Note ID:}}<',
@@ -2397,6 +2667,7 @@ translation = [
     'showMessage("{{SQL Console note has been saved into }}"',
     '{{Execute}} <k',
     '{{Save to note}}</k',
+    'placeholder: "{{Type the content of your code note here...}}"',
 ]
 replace_in_file(file_path, translation)
 
@@ -2700,6 +2971,16 @@ translation = [
 ]
 replace_in_file(file_path, translation, TARGET_PATH)
 
+file_path = 'src/public/app/widgets/type_widgets/web_view.js'
+translation = [
+    '>{{Web View}}<',
+    '{{Note of type Web View allow you to embed websites into Trilium.}}',
+    '{{To start, please create a label with a URL address you want to embed, e.g. <code>#webViewSrc="http://www.google.com"</code>}}',
+    '{{Disclaimer on the experimental status}}',
+    '{{Web View is an experimental note type, and it might be removed or substantially changed in the future. Web View works also only in the desktop build.}}',
+]
+replace_in_file(file_path, translation)
+
 file_path = 'src/services/export/opml.js'
 translation = [
     '>{{Trilium export}}<',
@@ -2749,6 +3030,15 @@ translation = [
     "    alert('{{Cannot move notes before root note.}}'",
     "    alert('{{Cannot move notes after root note.}}'",
     '"{{Undeleting notes in progress:}} "',
+]
+replace_in_file(file_path, translation)
+
+file_path = 'src/public/app/services/bulk_action.js'
+translation = [
+    "title: '{{Labels}}',",
+    "title: '{{Relations}}',",
+    "title: '{{Notes}}',",
+    "title: '{{Other}}',",
 ]
 replace_in_file(file_path, translation)
 
@@ -2871,6 +3161,12 @@ replace_in_file(file_path, translation, TARGET_PATH)
 file_path = 'src/routes/api/date_notes.js'
 translation = [
     "title: '{{Search:}} '",
+]
+replace_in_file(file_path, translation, TARGET_PATH)
+
+file_path = 'src/routes/api/image.js'
+translation = [
+    'message: "{{Unknown image type: }}"',
 ]
 replace_in_file(file_path, translation, TARGET_PATH)
 
