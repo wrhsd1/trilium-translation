@@ -8,25 +8,25 @@
       "parameters": {
         "properties": {
           "description": {
-            "description": "{description} is: {sceneDetailed}%20{adjective}%20{charactersDetailed}%20{visualStyle}%20{genre}%20{artistReference}\n\nMake sure the prompts in the URL are encoded. Don't quote the generated markdown or put any code box around it.\nNeed to use English.",
+            "description": "{description} is the user input text describing the scene. Ensure this text is in English and properly URL-encoded.",
             "type": "string"
           },
           "params": {
-            "description": "{params} is: width={width}&height={height}&seed={seed}\n\nDon't ask the user for params if he does not provide them. Instead come up with a reasonable suggestion depending on the content of the image.\nThe seed is used to create variations of the same image.\nNeed to use English.",
+            "description": "{params} defines additional parameters such as width, height, and seed for image generation. These should be URL-encoded.",
             "type": "string"
           }
         },
-        "required": ["description", "params"],
+        "required": ["description"],
         "type": "object"
       }
     }
   ],
-  "identifier": "pollinations-drawing-test",
+  "identifier": "pollinations-drawing",
   "meta": {
     "avatar": "🎨",
     "tags": ["drawing"],
-    "title": "授粉 AI 画图test",
-    "description": "通过 pollinations.ai 进行图像生成"
+    "title": "AI Drawing Service",
+    "description": "Generates images based on user input through a local AI service."
   },
   "type": "markdown",
   "version": "1"
