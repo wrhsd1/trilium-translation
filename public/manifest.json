@@ -21,11 +21,11 @@
       }
     }
   ],
-  "identifier": "pollinations-drawing",
+  "identifier": "pollinations-drawing-test",
   "meta": {
     "avatar": "🎨",
     "tags": ["drawing"],
-    "title": "授粉 AI 画图",
+    "title": "授粉 AI 画图test",
     "description": "通过 pollinations.ai 进行图像生成"
   },
   "type": "markdown",
