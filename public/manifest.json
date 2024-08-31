@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@lobehub/chat-plugin-sdk/schema.json",
   "api": [
     {
-      "url": https://test.988886.xyz/playground",
+      "url": "https://test.988886.xyz/playground",
       "name": "drawing",
       "description": "根据用户要求进行画图。",
       "parameters": {
